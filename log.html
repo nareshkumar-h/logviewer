@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogAnalyzer</title>
+    <!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+
+    <script src="js/line.js"></script>
+    <script src="js/LineParser.js"></script>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">LogAnalyser</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="uploadfile.html">Upload Log</a>
+                  </li>  
+                  <li class="nav-item">
+                    <a class="nav-link" href="log.html">View Log</a>
+                  </li>   
+            </ul>           
+          </div>
+        </div>
+      </nav>
+      <div class="container-fluid">
+
+        <h3>Logs </h3>
+
+        <label>Choose LogFiles:</label>
+        <select id="fileName" onchange="showLog()" required>
+           
+        </select>
+
+        <label>Choose LogType:</label>
+        <select id="logType" onchange="showLog()">
+            <option value="" disabled>--SELECT--</option>
+            <!-- <option value="ALL">ALL</option> -->
+            <option value="QUERIES_EXECUTED">Queries Executed</option>
+        </select>
+       
+        <br/>
+        <br/>
+        <!-- <button type="button" class="btn btn-danger" onclick="deleteLog()">Delete</button> -->
+   <section id="queries">
+    <pre id="output">
+
+    </pre>
+    </section>
+
+</div>
+      <script>
+
+        function loadFileNames(){
+          let fileNameSelect = document.querySelector("#fileName");
+          let options = "";
+          let fileNames = [];
+          for (var i = 0; i<localStorage.length; i++) {
+            let fname = localStorage.key(i);
+            let fileName = fname.split("_")[1];
+            fileNames.push(fileName);
+            options+=`<option value='${fileName}'>${fileName}</option>`;
+          }
+          fileNameSelect.innerHTML = options;
+          if(options.length>0){
+            //document.querySelector("#fileName").value = fileNames[0];
+
+          }
+        }
+
+
+        loadFileNames();
+        function filterLog(logType){
+            alert(logType);
+            showLog(logType);
+        }
+
+        function showLog(){
+            const fileName = document.querySelector("#fileName").value;
+            let logType = document.querySelector("#logType").value;
+            logType = logType ? logType:"QUERIES_EXECUTED";
+            console.log("ShowLog:" + fileName);
+            if(!fileName){
+              alert("Please upload a log file");
+              return;
+            }
+            let lines = JSON.parse(localStorage.getItem("LOGFILE_" + fileName));
+            console.log("Length:" + lines.length);
+            let content = getContentFromLog(fileName,lines, logType);
+                document.getElementById('output')
+                        .innerHTML=content;
+        }
+        showLog();
+
+        function deleteLog(){
+          const fileName = document.querySelector("#fileName").value;
+          let cfm = confirm("Do you want to delete logfile - " + fileName );
+          if(cfm){
+            localStorage.removeItem("LOGFILE_" + fileName);
+            alert("Deleted Successfully");
+            loadFileNames();
+          }
+        }
+
+
+    </script>
+    
+</body>
+</html>
